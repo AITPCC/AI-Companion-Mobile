@@ -1,98 +1,280 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  StatusBar,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Colors, ModeType } from '@/constants/colors';
+import { TopNavBar } from '@/components/navigation/TopNavBar';
+import { SideMenu } from '@/components/navigation/SideMenu';
+import { ModeHeader } from '@/components/chat/ModeHeader';
+import { ModeInfoBanner } from '@/components/chat/ModeInfoBanner';
+import { MessageBubble } from '@/components/chat/MessageBubble';
+import { ChatInput } from '@/components/chat/ChatInput';
+import { MemoryCard } from '@/components/cards/MemoryCard';
+import { LearningProgressCard } from '@/components/cards/LearningProgressCard';
+import { HabitTrackerCard } from '@/components/cards/HabitTrackerCard';
+import { EmotionCard } from '@/components/cards/EmotionCard';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+// 模式配置数据
+const modeConfigs: Record<ModeType, {
+  title: string;
+  subtitle: string;
+  bannerTitle: string;
+  bannerDescription: string;
+  tags: string[];
+}> = {
+  personal: {
+    title: 'Personal AI Companion',
+    subtitle: 'I remember our conversations and learn about you',
+    bannerTitle: '🧠 Personal AI Memory',
+    bannerDescription: 'I remember your conversations, preferences, and learning progress to provide personalized support.',
+    tags: ['Remembers past topics', 'Tracks your interests', 'Builds on previous conversations'],
+  },
+  famous: {
+    title: 'Conversation with W. Somerset Maugham',
+    subtitle: 'British novelist, playwright, and short-story writer (1874-1965)',
+    bannerTitle: '🎭 Talk to Historical Figures',
+    bannerDescription: 'Have deep conversations with W. Somerset Maugham and learn from his wisdom and life experiences.',
+    tags: ['Authentic personality', 'Historical insights', 'Literary discussions'],
+  },
+  learning: {
+    title: 'Learning Companion',
+    subtitle: 'Guided problem-solving • Hints not answers',
+    bannerTitle: '🎓 Guided Learning Mode',
+    bannerDescription: "I provide hints and questions to guide you to the answer, not just give it away - parent-approved learning!",
+    tags: ['Step-by-step hints', 'Socratic questions', 'Progress tracking'],
+  },
+  coach: {
+    title: 'Life Coach',
+    subtitle: 'Routine optimization • Healthy habits • Time management',
+    bannerTitle: '💪 Life & Routine Coach',
+    bannerDescription: 'Build better habits, manage your time effectively, and optimize your daily student life.',
+    tags: ['Habit tracking', 'Routine building', 'Goal setting'],
+  },
+  emotion: {
+    title: 'Emotion-Aware Companion',
+    subtitle: 'Empathetic support • Emotional intelligence',
+    bannerTitle: '❤️ Emotion-Aware Support',
+    bannerDescription: 'I detect your emotional state and provide empathetic, supportive responses tailored to how you feel.',
+    tags: ['Real-time emotion detection', 'Empathetic responses', 'Mental wellness support'],
+  },
+};
 
-export default function HomeScreen() {
+// 示例消息数据
+const sampleMessages: Record<ModeType, { type: 'user' | 'ai' | 'system'; content: string; aiLabel?: string; emotion?: string }[]> = {
+  personal: [
+    { type: 'system', content: 'Personal AI mode activated - I remember your preferences and history' },
+    { type: 'ai', content: "Good morning, Emma! I remember you mentioned wanting to improve your study schedule. How did yesterday's study session go with the quadratic equations we discussed?", aiLabel: 'AI Companion' },
+    { type: 'user', content: 'It went well! I practiced the problems you suggested.' },
+    { type: 'ai', content: "Excellent! I'm glad to hear that. Since you're also interested in literature (I remember you love classical novels), would you like to discuss any of the books you're reading, or shall we continue with math?", aiLabel: 'AI Companion' },
+  ],
+  famous: [
+    { type: 'system', content: 'Now conversing with W. Somerset Maugham' },
+    { type: 'ai', content: "Good day, my dear friend. I am W. Somerset Maugham, at your service. I've wandered through many countries and observed the peculiarities of human nature in its various forms. What would you like to discuss?", aiLabel: 'W. Somerset Maugham' },
+    { type: 'user', content: "I've been reading 'Of Human Bondage.' What inspired you to write about Philip's struggles?" },
+    { type: 'ai', content: "Ah, Philip Carey. In truth, much of his journey mirrors my own. The club foot, the struggle for independence, the search for meaning - these were all familiar to me.", aiLabel: 'W. Somerset Maugham' },
+  ],
+  learning: [
+    { type: 'system', content: 'Learning Companion mode - Guided problem-solving activated' },
+    { type: 'user', content: 'What is the answer to: Solve for x: 2x + 5 = 15?' },
+    { type: 'ai', content: "Great question! Let's work through this together. This is a linear equation problem. The key concept is to isolate the variable x by performing inverse operations on both sides.", aiLabel: 'Hint' },
+    { type: 'ai', content: 'Based on this, what do you think we should do first to start isolating x?', aiLabel: 'Think About This' },
+  ],
+  coach: [
+    { type: 'system', content: 'Life Coach mode - Helping you build better routines and habits' },
+    { type: 'ai', content: "Hi Emma! I'm here to help you manage your school life better. Based on our previous conversations, I know you want to improve your morning routine and study habits. What specific area would you like to work on today?", aiLabel: 'AI Companion' },
+    { type: 'user', content: "I'm struggling to wake up early and feel energized for morning classes." },
+  ],
+  emotion: [
+    { type: 'system', content: 'Emotion-Aware mode - Empathetic support activated' },
+    { type: 'user', content: "I'm feeling really stressed about my upcoming exams.", emotion: 'anxious' },
+    { type: 'ai', content: "I can sense you're feeling anxious, Emma. It's completely normal to feel stressed before exams - it shows you care about doing well. Let's take a moment to breathe together.", aiLabel: 'Empathetic Response' },
+  ],
+};
+
+export default function ChatScreen() {
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [currentMode, setCurrentMode] = useState<ModeType>('personal');
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const config = modeConfigs[currentMode];
+  const messages = sampleMessages[currentMode];
+
+  const handleSendMessage = (message: string) => {
+    console.log('Sending message:', message);
+    // 这里添加发送消息的逻辑
+  };
+
+  const renderModeSpecificCard = () => {
+    switch (currentMode) {
+      case 'personal':
+        return (
+          <MemoryCard
+            mode="personal"
+            title="What I Remember About You"
+            memories={[
+              { icon: 'time', text: 'Last discussed quadratic equations 2 days ago' },
+              { icon: 'heart', text: 'Favorite subjects: Math, Classical Literature' },
+              { icon: 'flag', text: 'Goals: Improve study schedule, prepare for finals' },
+            ]}
+          />
+        );
+      case 'learning':
+        return (
+          <LearningProgressCard
+            stats={[
+              { icon: 'checkmark-circle', value: '12', label: 'Problems Solved' },
+              { icon: 'bulb', value: '8', label: 'Concepts Learned' },
+              { icon: 'flame', value: '5', label: 'Day Streak' },
+            ]}
+            currentTopic="Linear Equations"
+            masteryPercent={65}
+          />
+        );
+      case 'coach':
+        return (
+          <HabitTrackerCard
+            habits={[
+              {
+                name: 'Wake up at 6:30 AM',
+                streak: 4,
+                days: [
+                  { day: 'Mon', completed: true },
+                  { day: 'Tue', completed: true },
+                  { day: 'Wed', completed: true },
+                  { day: 'Thu', completed: true },
+                  { day: 'Fri', completed: false },
+                ],
+              },
+              {
+                name: 'Morning exercise',
+                streak: 3,
+                days: [
+                  { day: 'Mon', completed: true },
+                  { day: 'Tue', completed: true },
+                  { day: 'Wed', completed: true },
+                  { day: 'Thu', completed: false },
+                  { day: 'Fri', completed: false },
+                ],
+              },
+            ]}
+          />
+        );
+      case 'emotion':
+        return <EmotionCard currentMood="Calm & Neutral" moodIcon="happy" />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" />
+      
+      {/* 背景渐变 */}
+      <LinearGradient
+        colors={['#F8FAFC', '#EFF6FF', '#FAF5FF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      {/* 顶部导航 */}
+      <TopNavBar
+        username="Emma"
+        onMenuPress={() => setMenuVisible(true)}
+      />
+
+      {/* 聊天内容 */}
+      <ScrollView
+        ref={scrollViewRef}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 模式头部 */}
+        <View style={styles.cardsSection}>
+          <ModeHeader
+            mode={currentMode}
+            title={config.title}
+            subtitle={config.subtitle}
+          />
+
+          <ModeInfoBanner
+            mode={currentMode}
+            title={config.bannerTitle}
+            description={config.bannerDescription}
+            tags={config.tags}
+          />
+
+          {renderModeSpecificCard()}
+        </View>
+
+        {/* 消息列表 */}
+        <View style={styles.messagesSection}>
+          {messages.map((msg, index) => (
+            <MessageBubble
+              key={index}
+              type={msg.type}
+              content={msg.content}
+              mode={currentMode}
+              aiLabel={msg.aiLabel}
+              emotion={msg.emotion}
+            />
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* 输入框 */}
+      <ChatInput
+        onSend={handleSendMessage}
+        mode={currentMode}
+        placeholder="Type your message..."
+        showEmotionDetector={currentMode === 'emotion'}
+        detectedEmotion="Neutral"
+      />
+
+      {/* 侧边菜单 */}
+      <SideMenu
+        visible={menuVisible}
+        onClose={() => setMenuVisible(false)}
+        currentMode={currentMode}
+        onModeSelect={setCurrentMode}
+        stats={{ conversations: 247, interests: 'Math, Literature' }}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: Colors.white,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  scrollView: {
+    flex: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  cardsSection: {
+    padding: 12,
+    gap: 12,
+  },
+  messagesSection: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    backgroundColor: Colors.white,
+    marginHorizontal: 12,
+    borderRadius: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
 });

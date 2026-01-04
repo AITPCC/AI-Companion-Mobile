@@ -1,112 +1,205 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors, ModeType, getModeColors } from '@/constants/colors';
+import { Typography } from '@/constants/typography';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+const modes: { id: ModeType; title: string; description: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  {
+    id: 'personal',
+    title: 'Personal AI Companion',
+    description: 'I remember our conversations and learn about you',
+    icon: 'person',
+  },
+  {
+    id: 'famous',
+    title: 'Famous Figures',
+    description: 'Chat with historical personalities and learn from their wisdom',
+    icon: 'people',
+  },
+  {
+    id: 'learning',
+    title: 'Learning Companion',
+    description: 'Guided problem-solving with hints, not answers',
+    icon: 'school',
+  },
+  {
+    id: 'coach',
+    title: 'Life Coach',
+    description: 'Build better habits and optimize your routine',
+    icon: 'fitness',
+  },
+  {
+    id: 'emotion',
+    title: 'Emotion-Aware',
+    description: 'Empathetic support tailored to how you feel',
+    icon: 'heart',
+  },
+];
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <LinearGradient
+        colors={['#F8FAFC', '#EFF6FF', '#FAF5FF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Explore Modes</Text>
+          <Text style={styles.headerSubtitle}>
+            Choose an AI companion mode that fits your needs
+          </Text>
+        </View>
+
+        <View style={styles.modesGrid}>
+          {modes.map((mode) => {
+            const modeColors = getModeColors(mode.id);
+            return (
+              <TouchableOpacity key={mode.id} activeOpacity={0.8}>
+                <LinearGradient
+                  colors={modeColors.gradient as [string, string]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.modeCard}
+                >
+                  <View style={styles.modeIconContainer}>
+                    <Ionicons name={mode.icon} size={28} color={Colors.white} />
+                  </View>
+                  <Text style={styles.modeTitle}>{mode.title}</Text>
+                  <Text style={styles.modeDescription}>{mode.description}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <View style={styles.statsSection}>
+          <Text style={styles.sectionTitle}>Your Stats</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Ionicons name="chatbubbles" size={24} color={Colors.primary.light} />
+              <Text style={styles.statValue}>247</Text>
+              <Text style={styles.statLabel}>Conversations</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="time" size={24} color={Colors.modes.learning.primary} />
+              <Text style={styles.statValue}>12h</Text>
+              <Text style={styles.statLabel}>Time Spent</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Ionicons name="flame" size={24} color={Colors.modes.coach.primary} />
+              <Text style={styles.statValue}>5</Text>
+              <Text style={styles.statLabel}>Day Streak</Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: Colors.white,
   },
-  titleContainer: {
-    flexDirection: 'row',
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  header: {
+    marginBottom: 24,
+  },
+  headerTitle: {
+    ...Typography.h1,
+    fontSize: 28,
+    color: Colors.gray[900],
+    marginBottom: 8,
+  },
+  headerSubtitle: {
+    ...Typography.body,
+    color: Colors.gray[600],
+  },
+  modesGrid: {
+    gap: 12,
+  },
+  modeCard: {
+    padding: 20,
+    borderRadius: 16,
     gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modeIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  modeTitle: {
+    ...Typography.h2,
+    color: Colors.white,
+  },
+  modeDescription: {
+    ...Typography.bodySmall,
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  statsSection: {
+    marginTop: 32,
+  },
+  sectionTitle: {
+    ...Typography.h2,
+    color: Colors.gray[900],
+    marginBottom: 16,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  statValue: {
+    ...Typography.numberLarge,
+    color: Colors.gray[900],
+  },
+  statLabel: {
+    ...Typography.tag,
+    color: Colors.gray[500],
   },
 });
