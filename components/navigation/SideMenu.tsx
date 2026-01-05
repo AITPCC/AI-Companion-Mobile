@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, ModeType, getModeColors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 
@@ -38,6 +39,8 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   onModeSelect,
   stats = { conversations: 247, interests: 'Math, Literature' },
 }) => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Modal
       visible={visible}
@@ -46,19 +49,16 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.menuContainer} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={[styles.menuContainer, { paddingTop: insets.top + 12 }]} onPress={(e) => e.stopPropagation()}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>Menu</Text>
-              <TouchableOpacity onPress={onClose}>
-                <Ionicons name="close" size={20} color={Colors.gray[900]} />
-              </TouchableOpacity>
-            </View>
-
-            {/* Quick Stats */}
+            {/* Quick Stats with Close Button */}
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>Quick Stats</Text>
+              <View style={styles.quickStatsHeader}>
+                <Text style={styles.sectionLabel}>Quick Stats</Text>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                  <Ionicons name="close" size={20} color={Colors.gray[900]} />
+                </TouchableOpacity>
+              </View>
               <Text style={styles.statText}>{stats.conversations} conversations</Text>
               <Text style={styles.statText}>Interests: {stats.interests}</Text>
             </View>
@@ -135,22 +135,23 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: Colors.white,
     paddingHorizontal: 16,
-    paddingTop: 16,
     shadowColor: '#000',
     shadowOffset: { width: -4, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 8,
   },
-  header: {
+  quickStatsHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 8,
   },
-  headerTitle: {
-    ...Typography.h1,
-    color: Colors.gray[900],
+  closeButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   section: {
     marginBottom: 24,

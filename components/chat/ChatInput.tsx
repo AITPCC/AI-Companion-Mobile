@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, ModeType, getModeColors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 
@@ -22,6 +23,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const [message, setMessage] = useState('');
   const modeColors = getModeColors(mode);
+  const insets = useSafeAreaInsets();
 
   const handleSend = () => {
     if (message.trim()) {
@@ -31,11 +33,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 8) }]}>
       {showEmotionDetector && (
         <View style={styles.emotionDetector}>
           <Ionicons name="heart-outline" size={14} color={Colors.gray[700]} />
-          <Text style={styles.emotionLabel}>检测情绪:</Text>
+          <Text style={styles.emotionLabel}>Detected emotion:</Text>
           <Text style={styles.emotionValue}>{detectedEmotion}</Text>
           <Ionicons name="happy-outline" size={14} color={Colors.gray[700]} />
         </View>
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.gray[50],
     paddingHorizontal: 12,
-    paddingVertical: 16,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: Colors.gray[200],
     gap: 8,

@@ -47,7 +47,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           {emotion && (
             <View style={styles.emotionTag}>
               <Ionicons name="heart" size={12} color={Colors.white} />
-              <Text style={styles.emotionText}>检测情绪: {emotion}</Text>
+              <Text style={styles.emotionText}>Detected emotion: {emotion}</Text>
             </View>
           )}
           <Text style={styles.userText}>{content}</Text>
