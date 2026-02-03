@@ -28,55 +28,16 @@ export const Colors = {
   
   // 模式颜色
   modes: {
-    personal: {
-      primary: '#2B7FFF',
-      secondary: '#00B8DB',
-      light: '#EFF6FF',
-      border: '#BEDBFF',
-      text: '#1C398E',
-      tag: '#DBEAFE',
-      tagText: '#1447E6',
-      gradient: ['#2B7FFF', '#00B8DB'],
-    },
     famous: {
-      primary: '#AD46FF',
-      secondary: '#F6339A',
-      light: '#FAF5FF',
-      border: '#E9D4FF',
-      text: '#59168B',
-      tag: '#F3E8FF',
-      tagText: '#8200DB',
-      gradient: ['#AD46FF', '#F6339A'],
-    },
-    learning: {
-      primary: '#00C950',
-      secondary: '#00BC7D',
-      light: '#F0FDF4',
-      border: '#B9F8CF',
-      text: '#0D542B',
-      tag: '#DCFCE7',
-      tagText: '#008236',
-      gradient: ['#00C950', '#00BC7D'],
-    },
-    coach: {
-      primary: '#FF6900',
-      secondary: '#FB2C36',
-      light: '#FFF7ED',
-      border: '#FFD6A7',
-      text: '#7E2A0C',
-      tag: '#FFEDD4',
-      tagText: '#0A0A0A',
-      gradient: ['#FF6900', '#FB2C36'],
-    },
-    emotion: {
-      primary: '#615FFF',
-      secondary: '#AD46FF',
-      light: '#FFF1F2',
-      border: '#FFA1AD',
-      text: '#312C85',
-      tag: '#FFE4E6',
-      tagText: '#8B0836',
-      gradient: ['#615FFF', '#AD46FF'],
+      // 秦始皇风格：金色、深红、黑色
+      primary: '#D4AF37', // 金色
+      secondary: '#8B0000', // 深红色
+      light: '#FFF8E7', // 淡金色背景
+      border: '#B8860B', // 深金色边框
+      text: '#8B4513', // 棕色文字
+      tag: '#FFD700', // 金色标签
+      tagText: '#8B0000', // 深红色标签文字
+      gradient: ['#D4AF37', '#8B0000'], // 金色到深红渐变
     },
   },
   
@@ -105,6 +66,6 @@ export const Colors = {
   info: '#2B7FFF',
 };
 
-export type ModeType = 'personal' | 'famous' | 'learning' | 'coach' | 'emotion';
+export type ModeType = 'famous';
 
 export const getModeColors = (mode: ModeType) => Colors.modes[mode];

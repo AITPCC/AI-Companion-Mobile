@@ -25,11 +25,7 @@ interface SideMenuProps {
 }
 
 const modes: { id: ModeType; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
-  { id: 'personal', label: 'Personal', icon: 'person' },
   { id: 'famous', label: 'Famous', icon: 'people' },
-  { id: 'learning', label: 'Learning', icon: 'school' },
-  { id: 'coach', label: 'Coach', icon: 'fitness' },
-  { id: 'emotion', label: 'Emotion', icon: 'heart' },
 ];
 
 export const SideMenu: React.FC<SideMenuProps> = ({
