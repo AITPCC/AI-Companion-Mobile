@@ -7,16 +7,16 @@ import { Colors, ModeType } from '@/constants/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-// 模式配置数据
+// Mode configuration data
 const modeConfigs: Record<ModeType, {
   title: string;
   subtitle: string;
@@ -25,21 +25,21 @@ const modeConfigs: Record<ModeType, {
   tags: string[];
 }> = {
   famous: {
-    title: '与秦始皇对话',
-    subtitle: '中国第一位皇帝，统一六国的千古一帝',
+    title: 'Conversation with Qin Shi Huang',
+    subtitle: 'First Emperor of China, who unified the Six Warring States',
     bannerTitle: '🎭 Talk to Historical Figures',
-    bannerDescription: 'Have deep conversations with W. Somerset Maugham and learn from his wisdom and life experiences.',
+    bannerDescription: 'Have deep conversations with Qin Shi Huang and learn from his wisdom and life experiences.',
     tags: ['Authentic personality', 'Historical insights', 'Literary discussions'],
   },
 };
 
-// 示例消息数据
+// Sample message data
 const sampleMessages: Record<ModeType, { type: 'user' | 'ai' | 'system'; content: string; aiLabel?: string; emotion?: string }[]> = {
   famous: [
-    { type: 'system', content: '正在与秦始皇对话' },
-    { type: 'ai', content: "朕乃始皇帝，统一六国，建立大秦帝国。朕深知治国之道，统一文字、货币、度量衡，修筑万里长城。你有何问题想与朕探讨？", aiLabel: '秦始皇' },
-    { type: 'user', content: "陛下，您统一六国的过程中，最大的挑战是什么？" },
-    { type: 'ai', content: "统一六国，非一日之功。最大的挑战在于如何将不同文化、不同制度的六国融合为一体。朕采用法家思想，统一法律、文字、货币，使天下归一。但治理天下，比征服天下更难。", aiLabel: '秦始皇' },
+    { type: 'system', content: 'Now conversing with Qin Shi Huang' },
+    { type: 'ai', content: "I am the First Emperor, who unified the Six States and founded the Qin Empire. I established a unified script, currency, and weights and measures, and built the Great Wall. What would you like to discuss with me?", aiLabel: 'Qin Shi Huang' },
+    { type: 'user', content: "Your Majesty, what was the biggest challenge in unifying the Six States?" },
+    { type: 'ai', content: "Unifying the Six States was no easy feat. The greatest challenge was merging six kingdoms with different cultures and systems into one. I adopted Legalist philosophy—unifying laws, script, and currency to bring order to the realm. But governing an empire is harder than conquering one.", aiLabel: 'Qin Shi Huang' },
   ],
 };
 
@@ -54,7 +54,7 @@ export default function ChatScreen() {
 
   const handleSendMessage = (message: string) => {
     console.log('Sending message:', message);
-    // 这里添加发送消息的逻辑
+    // Add send message logic here
   };
 
 
@@ -62,7 +62,7 @@ export default function ChatScreen() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       
-      {/* 背景渐变 - 秦始皇风格 */}
+      {/* Background gradient - Qin Shi Huang style */}
       <LinearGradient
         colors={['#FFF8E7', '#FFE4B5', '#FFFACD']}
         start={{ x: 0, y: 0 }}
@@ -74,7 +74,7 @@ export default function ChatScreen() {
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        {/* 顶部导航 */}
+        {/* Top navigation */}
         <View style={{ paddingTop: insets.top }}>
           <TopNavBar
             username="Username"
@@ -82,7 +82,7 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* 聊天内容 */}
+        {/* Chat content */}
         <ScrollView
           ref={scrollViewRef}
           style={styles.scrollView}
@@ -90,7 +90,7 @@ export default function ChatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* 模式头部 */}
+          {/* Mode header */}
           <View style={styles.cardsSection}>
             <ModeHeader
               mode={currentMode}
@@ -99,7 +99,7 @@ export default function ChatScreen() {
             />
           </View>
 
-          {/* 消息列表 */}
+          {/* Message list */}
           <View style={styles.messagesSection}>
             {messages.map((msg, index) => (
               <MessageBubble
@@ -114,7 +114,7 @@ export default function ChatScreen() {
           </View>
         </ScrollView>
 
-        {/* 输入框 - 紧贴底部 */}
+        {/* Input - bottom aligned */}
         <ChatInput
           onSend={handleSendMessage}
           mode={currentMode}
@@ -122,7 +122,7 @@ export default function ChatScreen() {
         />
       </KeyboardAvoidingView>
 
-      {/* 侧边菜单 */}
+      {/* Side menu */}
       <SideMenu
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}

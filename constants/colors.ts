@@ -1,10 +1,10 @@
-// TPCC 应用颜色主题
+// TPCC app color theme
 export const Colors = {
-  // 基础颜色
+  // Base colors
   white: '#FFFFFF',
   black: '#0A0A0A',
   
-  // 灰色系
+  // Gray scale
   gray: {
     50: '#F9FAFB',
     100: '#F3F4F6',
@@ -18,7 +18,7 @@ export const Colors = {
     900: '#101828',
   },
   
-  // 主色 - 蓝紫渐变
+  // Primary - blue-purple gradient
   primary: {
     light: '#2B7FFF',
     dark: '#155DFC',
@@ -26,22 +26,22 @@ export const Colors = {
     gradient: ['#2B7FFF', '#9810FA'],
   },
   
-  // 模式颜色
+  // Mode colors
   modes: {
     famous: {
-      // 秦始皇风格：金色、深红、黑色
-      primary: '#D4AF37', // 金色
-      secondary: '#8B0000', // 深红色
-      light: '#FFF8E7', // 淡金色背景
-      border: '#B8860B', // 深金色边框
-      text: '#8B4513', // 棕色文字
-      tag: '#FFD700', // 金色标签
-      tagText: '#8B0000', // 深红色标签文字
-      gradient: ['#D4AF37', '#8B0000'], // 金色到深红渐变
+      // Qin Shi Huang style: gold, crimson, black
+      primary: '#D4AF37', // gold
+      secondary: '#8B0000', // crimson
+      light: '#FFF8E7', // light gold background
+      border: '#B8860B', // dark gold border
+      text: '#8B4513', // brown text
+      tag: '#FFD700', // gold tag
+      tagText: '#8B0000', // crimson tag text
+      gradient: ['#D4AF37', '#8B0000'], // gold to crimson gradient
     },
   },
   
-  // 消息气泡颜色
+  // Message bubble colors
   message: {
     user: {
       background: ['#2B7FFF', '#155DFC'],
@@ -59,7 +59,7 @@ export const Colors = {
     },
   },
   
-  // 功能色
+  // Functional colors
   success: '#00C950',
   warning: '#FF6900',
   error: '#EC003F',

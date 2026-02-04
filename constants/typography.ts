@@ -1,8 +1,8 @@
-// TPCC 应用字体样式
+// TPCC app typography
 import { StyleSheet } from 'react-native';
 
 export const Typography = StyleSheet.create({
-  // 标题
+  // Headings
   h1: {
     fontSize: 20,
     fontWeight: '600',
@@ -24,7 +24,7 @@ export const Typography = StyleSheet.create({
     lineHeight: 16,
   },
   
-  // 正文
+  // Body text
   body: {
     fontSize: 14,
     fontWeight: '400',
@@ -36,14 +36,14 @@ export const Typography = StyleSheet.create({
     lineHeight: 16,
   },
   
-  // 标签
+  // Tags
   tag: {
     fontSize: 10,
     fontWeight: '400',
     lineHeight: 15,
   },
   
-  // 按钮
+  // Buttons
   button: {
     fontSize: 16,
     fontWeight: '500',
@@ -55,7 +55,7 @@ export const Typography = StyleSheet.create({
     lineHeight: 20,
   },
   
-  // 数字展示
+  // Numbers
   number: {
     fontSize: 18,
     fontWeight: '600',

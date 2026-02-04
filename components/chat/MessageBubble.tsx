@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Image } from 'expo-image';
 import { Colors, ModeType, getModeColors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export type MessageType = 'user' | 'ai' | 'system';
 
@@ -60,7 +60,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     );
   }
 
-  // AI 消息
+  // AI message
   return (
     <View style={styles.aiContainer}>
       <View style={[styles.aiAvatarContainer, { borderColor: Colors.white, backgroundColor: modeColors.primary }]}>
@@ -87,7 +87,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 };
 
 const styles = StyleSheet.create({
-  // 系统消息
+  // System message
   systemContainer: {
     alignItems: 'center',
     marginVertical: 12,
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     color: Colors.message.system.text,
   },
 
-  // 用户消息
+  // User message
   userContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
 
-  // AI 消息
+  // AI message
   aiContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     color: Colors.message.ai.text,
   },
 
-  // 通用头像
+  // Generic avatar
   avatar: {
     width: 28,
     height: 28,
