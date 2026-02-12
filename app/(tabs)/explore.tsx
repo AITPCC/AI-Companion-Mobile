@@ -14,34 +14,10 @@ import { Typography } from '@/constants/typography';
 
 const modes: { id: ModeType; title: string; description: string; icon: keyof typeof Ionicons.glyphMap }[] = [
   {
-    id: 'personal',
-    title: 'Personal AI Companion',
-    description: 'I remember our conversations and learn about you',
-    icon: 'person',
-  },
-  {
     id: 'famous',
     title: 'Famous Figures',
     description: 'Chat with historical personalities and learn from their wisdom',
     icon: 'people',
-  },
-  {
-    id: 'learning',
-    title: 'Learning Companion',
-    description: 'Guided problem-solving with hints, not answers',
-    icon: 'school',
-  },
-  {
-    id: 'coach',
-    title: 'Life Coach',
-    description: 'Build better habits and optimize your routine',
-    icon: 'fitness',
-  },
-  {
-    id: 'emotion',
-    title: 'Emotion-Aware',
-    description: 'Empathetic support tailored to how you feel',
-    icon: 'heart',
   },
 ];
 
@@ -93,17 +69,17 @@ export default function ExploreScreen() {
           <Text style={styles.sectionTitle}>Your Stats</Text>
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
-              <Ionicons name="chatbubbles" size={24} color={Colors.primary.light} />
+              <Ionicons name="chatbubbles" size={24} color={Colors.modes.famous.primary} />
               <Text style={styles.statValue}>247</Text>
               <Text style={styles.statLabel}>Conversations</Text>
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="time" size={24} color={Colors.modes.learning.primary} />
+              <Ionicons name="time" size={24} color={Colors.modes.famous.primary} />
               <Text style={styles.statValue}>12h</Text>
               <Text style={styles.statLabel}>Time Spent</Text>
             </View>
             <View style={styles.statCard}>
-              <Ionicons name="flame" size={24} color={Colors.modes.coach.primary} />
+              <Ionicons name="flame" size={24} color={Colors.modes.famous.primary} />
               <Text style={styles.statValue}>5</Text>
               <Text style={styles.statLabel}>Day Streak</Text>
             </View>

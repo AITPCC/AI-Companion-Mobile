@@ -1,9 +1,10 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Colors, ModeType, getModeColors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 export type MessageType = 'user' | 'ai' | 'system';
 
@@ -19,7 +20,7 @@ interface MessageBubbleProps {
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
   type,
   content,
-  mode = 'personal',
+  mode = 'famous',
   aiLabel,
   emotion,
 }) => {
@@ -59,17 +60,17 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     );
   }
 
-  // AI 消息
+  // AI message
   return (
     <View style={styles.aiContainer}>
-      <LinearGradient
-        colors={[modeColors.tag, modeColors.light]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.aiAvatar}
-      >
-        <Ionicons name="sparkles" size={14} color={modeColors.primary} />
-      </LinearGradient>
+      <View style={[styles.aiAvatarContainer, { borderColor: Colors.white, backgroundColor: modeColors.primary }]}>
+        <Image
+          source={require('@/assets/images/qinshihuang.jpg')}
+          style={styles.aiAvatarImage}
+          contentFit="cover"
+          contentPosition="top center"
+        />
+      </View>
       <View style={[styles.aiBubble, { borderColor: modeColors.border }]}>
         {aiLabel && (
           <View style={styles.aiHeader}>
@@ -86,7 +87,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 };
 
 const styles = StyleSheet.create({
-  // 系统消息
+  // System message
   systemContainer: {
     alignItems: 'center',
     marginVertical: 12,
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
     color: Colors.message.system.text,
   },
 
-  // 用户消息
+  // User message
   userContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
     color: Colors.message.user.text,
   },
   userAvatar: {
-    backgroundColor: Colors.modes.personal.tag,
+    backgroundColor: Colors.modes.famous.tag,
   },
   emotionTag: {
     flexDirection: 'row',
@@ -136,19 +137,23 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
 
-  // AI 消息
+  // AI message
   aiContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
     marginVertical: 8,
   },
-  aiAvatar: {
-    width: 28,
-    height: 28,
+  aiAvatarContainer: {
+    width: 50,
+    height: 50,
     borderRadius: 999,
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderWidth: 2,
+    overflow: 'hidden',
+  },
+  aiAvatarImage: {
+    width: '100%',
+    height: '100%',
   },
   aiBubble: {
     maxWidth: '75%',
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
     color: Colors.message.ai.text,
   },
 
-  // 通用头像
+  // Generic avatar
   avatar: {
     width: 28,
     height: 28,

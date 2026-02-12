@@ -16,7 +16,7 @@ interface ChatInputProps {
 
 export const ChatInput: React.FC<ChatInputProps> = ({
   onSend,
-  mode = 'personal',
+  mode = 'famous',
   placeholder = 'Type your message...',
   showEmotionDetector = false,
   detectedEmotion = 'Neutral',
