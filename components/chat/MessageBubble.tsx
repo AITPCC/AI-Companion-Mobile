@@ -63,7 +63,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   // AI message
   return (
     <View style={styles.aiContainer}>
-      <View style={[styles.aiAvatarContainer, { borderColor: Colors.white, backgroundColor: modeColors.primary }]}>
+      <View
+        style={[
+          styles.aiAvatarContainer,
+          { borderColor: Colors.white, backgroundColor: modeColors.primary },
+        ]}
+      >
         <Image
           source={require('@/assets/images/qinshihuang.jpg')}
           style={styles.aiAvatarImage}
@@ -75,9 +80,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         {aiLabel && (
           <View style={styles.aiHeader}>
             <Ionicons name="sparkles" size={12} color={modeColors.text} />
-            <Text style={[styles.aiLabel, { color: modeColors.text }]}>
-              {aiLabel}
-            </Text>
+            <Text style={[styles.aiLabel, { color: modeColors.text }]}>{aiLabel}</Text>
           </View>
         )}
         <Text style={styles.aiText}>{content}</Text>
@@ -85,6 +88,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     </View>
   );
 };
+
+const AVATAR_SIZE = 40;
 
 const styles = StyleSheet.create({
   // System message
@@ -145,8 +150,8 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   aiAvatarContainer: {
-    width: 50,
-    height: 50,
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
     borderRadius: 999,
     borderWidth: 2,
     overflow: 'hidden',
@@ -181,10 +186,11 @@ const styles = StyleSheet.create({
 
   // Generic avatar
   avatar: {
-    width: 28,
-    height: 28,
+    width: AVATAR_SIZE,
+    height: AVATAR_SIZE,
     borderRadius: 999,
     justifyContent: 'center',
     alignItems: 'center',
   },
 });
+
