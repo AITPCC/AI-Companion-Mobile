@@ -4,15 +4,16 @@ import { ModeHeader } from '@/components/chat/ModeHeader';
 import { SideMenu } from '@/components/navigation/SideMenu';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { Colors, ModeType } from '@/constants/colors';
+import { sendChatCompletion } from '@/lib/chatApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -33,28 +34,82 @@ const modeConfigs: Record<ModeType, {
   },
 };
 
-// Sample message data
-const sampleMessages: Record<ModeType, { type: 'user' | 'ai' | 'system'; content: string; aiLabel?: string; emotion?: string }[]> = {
-  famous: [
-    { type: 'system', content: 'Now conversing with Qin Shi Huang' },
-    { type: 'ai', content: "I am the First Emperor, who unified the Six States and founded the Qin Empire. I established a unified script, currency, and weights and measures, and built the Great Wall. What would you like to discuss with me?", aiLabel: 'Qin Shi Huang' },
-    { type: 'user', content: "Your Majesty, what was the biggest challenge in unifying the Six States?" },
-    { type: 'ai', content: "Unifying the Six States was no easy feat. The greatest challenge was merging six kingdoms with different cultures and systems into one. I adopted Legalist philosophy—unifying laws, script, and currency to bring order to the realm. But governing an empire is harder than conquering one.", aiLabel: 'Qin Shi Huang' },
-  ],
+type ChatMessage = {
+  type: 'user' | 'ai' | 'system';
+  content: string;
+  aiLabel?: string;
+  emotion?: string;
+};
+
+const modeToBackendMode: Record<ModeType, string> = {
+  famous: 'history_figure',
 };
 
 export default function ChatScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [currentMode, setCurrentMode] = useState<ModeType>('famous');
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { type: 'system', content: 'Now conversing with Qin Shi Huang' },
+  ]);
+  const [isSending, setIsSending] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
 
   const config = modeConfigs[currentMode];
-  const messages = sampleMessages[currentMode];
 
-  const handleSendMessage = (message: string) => {
-    console.log('Sending message:', message);
-    // Add send message logic here
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    });
+  };
+
+  const handleSendMessage = async (message: string) => {
+    if (!message.trim() || isSending) return;
+
+    const userMessage: ChatMessage = { type: 'user', content: message };
+    setMessages((prev) => [...prev, userMessage]);
+    scrollToBottom();
+
+    const historyForBackend = messages
+      .filter((m) => m.type === 'user' || m.type === 'ai')
+      .map((m) => ({ content: m.content }));
+
+    setIsSending(true);
+    try {
+      const backendMode = modeToBackendMode[currentMode] ?? 'history_figure';
+      const response = await sendChatCompletion({
+        message,
+        history: historyForBackend,
+        mode: backendMode,
+      });
+
+      if (response.status === 200 && response.content) {
+        const aiMessage: ChatMessage = {
+          type: 'ai',
+          content: response.content,
+          aiLabel: 'Qin Shi Huang',
+        };
+        setMessages((prev) => [...prev, aiMessage]);
+      } else {
+        const errorText =
+          response.error ?? 'Unexpected error from AI service. Please try again.';
+        setMessages((prev) => [
+          ...prev,
+          { type: 'system', content: errorText },
+        ]);
+      }
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: 'system',
+          content: 'Failed to reach the server. Please check your connection.',
+        },
+      ]);
+    } finally {
+      setIsSending(false);
+      scrollToBottom();
+    }
   };
 
 
