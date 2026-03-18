@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Colors, ModeType, getModeColors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
@@ -84,3 +83,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+

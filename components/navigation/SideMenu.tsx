@@ -36,7 +36,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
   stats = { conversations: 247, interests: 'Math, Literature' },
 }) => {
   const insets = useSafeAreaInsets();
-  
+
   return (
     <Modal
       visible={visible}
@@ -45,7 +45,10 @@ export const SideMenu: React.FC<SideMenuProps> = ({
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={[styles.menuContainer, { paddingTop: insets.top + 12 }]} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={[styles.menuContainer, { paddingTop: insets.top + 12 }]}
+          onPress={(e) => e.stopPropagation()}
+        >
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Quick Stats with Close Button */}
             <View style={styles.section}>
@@ -66,7 +69,7 @@ export const SideMenu: React.FC<SideMenuProps> = ({
                 {modes.map((mode) => {
                   const isActive = mode.id === currentMode;
                   const modeColors = getModeColors(mode.id);
-                  
+
                   return (
                     <TouchableOpacity
                       key={mode.id}

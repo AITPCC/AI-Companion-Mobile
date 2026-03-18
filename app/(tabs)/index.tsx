@@ -4,7 +4,6 @@ import { ModeHeader } from '@/components/chat/ModeHeader';
 import { SideMenu } from '@/components/navigation/SideMenu';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { Colors, ModeType } from '@/constants/colors';
-import { sendChatCompletion } from '@/lib/chatApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
@@ -16,6 +15,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { sendChatCompletion } from '@/lib/chatApi';
 
 // Mode configuration data
 const modeConfigs: Record<ModeType, {
@@ -70,7 +70,7 @@ export default function ChatScreen() {
     setMessages((prev) => [...prev, userMessage]);
     scrollToBottom();
 
-    const historyForBackend = messages
+    const historyForBackend = [...messages, userMessage]
       .filter((m) => m.type === 'user' || m.type === 'ai')
       .map((m) => ({ content: m.content }));
 
@@ -98,7 +98,7 @@ export default function ChatScreen() {
           { type: 'system', content: errorText },
         ]);
       }
-    } catch (error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
@@ -182,7 +182,10 @@ export default function ChatScreen() {
         visible={menuVisible}
         onClose={() => setMenuVisible(false)}
         currentMode={currentMode}
-        onModeSelect={setCurrentMode}
+        onModeSelect={(mode) => {
+          setCurrentMode(mode);
+          setMessages([{ type: 'system', content: 'Now conversing with Qin Shi Huang' }]);
+        }}
         stats={{ conversations: 247, interests: 'Math, Literature' }}
       />
     </View>
