@@ -3,7 +3,7 @@ import { View, TextInput, TouchableOpacity, StyleSheet, Text } from 'react-nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, ModeType, getModeColors } from '@/constants/colors';
+import { Colors, ModeType } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 
 interface ChatInputProps {
@@ -22,7 +22,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   detectedEmotion = 'Neutral',
 }) => {
   const [message, setMessage] = useState('');
-  const modeColors = getModeColors(mode);
   const insets = useSafeAreaInsets();
 
   const handleSend = () => {
