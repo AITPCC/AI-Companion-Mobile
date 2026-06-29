@@ -4,19 +4,18 @@ import { ModeHeader } from '@/components/chat/ModeHeader';
 import { SideMenu } from '@/components/navigation/SideMenu';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { Colors, ModeType } from '@/constants/colors';
+import { formatChatError, sendChatCompletion } from '@/lib/chatApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sendChatCompletion } from '@/lib/chatApi';
-
 // Mode configuration data
 const modeConfigs: Record<ModeType, {
   title: string;
@@ -131,10 +130,7 @@ export default function ChatScreen() {
       >
         {/* Top navigation */}
         <View style={{ paddingTop: insets.top }}>
-          <TopNavBar
-            username="Username"
-            onMenuPress={() => setMenuVisible(true)}
-          />
+          <TopNavBar username="Username" />
         </View>
 
         {/* Chat content */}
