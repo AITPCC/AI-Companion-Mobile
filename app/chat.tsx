@@ -4,7 +4,9 @@ import { ModeHeader } from '@/components/chat/ModeHeader';
 import { SideMenu } from '@/components/navigation/SideMenu';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { Colors, ModeType } from '@/constants/colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -46,6 +48,7 @@ const modeToBackendMode: Record<ModeType, string> = {
 };
 
 export default function ChatScreen() {
+  const { currentUser } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
   const [currentMode, setCurrentMode] = useState<ModeType>('famous');
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -132,8 +135,9 @@ export default function ChatScreen() {
         {/* Top navigation */}
         <View style={{ paddingTop: insets.top }}>
           <TopNavBar
-            username="Username"
+            username={currentUser?.username ?? 'Guest'}
             onMenuPress={() => setMenuVisible(true)}
+            onProfilePress={() => router.push(currentUser ? '/profile' : '/')}
           />
         </View>
 
