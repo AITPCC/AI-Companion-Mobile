@@ -1,4 +1,5 @@
 import { AppModal } from '@/components/auth/AppModal';
+import { FormField } from '@/components/auth/FormField';
 import { Colors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,8 +12,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { currentUser, logOut } = useAuth();
+  const { currentUser, logOut, updateProfile } = useAuth();
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [editVisible, setEditVisible] = useState(false);
+  const [usernameDraft, setUsernameDraft] = useState('');
+  const [usernameError, setUsernameError] = useState('');
 
   const displayName = currentUser?.username ?? 'Guest';
   const initials = displayName.slice(0, 2).toUpperCase();
@@ -21,6 +25,25 @@ export default function ProfileScreen() {
     logOut();
     setConfirmVisible(false);
     router.replace('/');
+  };
+
+  const openEditModal = () => {
+    setUsernameDraft(currentUser?.username ?? '');
+    setUsernameError('');
+    setEditVisible(true);
+  };
+
+  const handleSaveUsername = () => {
+    if (!usernameDraft.trim()) {
+      setUsernameError('Username is required.');
+      return;
+    }
+    const result = updateProfile(usernameDraft.trim());
+    if (!result.success) {
+      setUsernameError(result.error);
+      return;
+    }
+    setEditVisible(false);
   };
 
   return (
@@ -46,6 +69,13 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.body}>
+        <TouchableOpacity style={styles.editRow} onPress={openEditModal} activeOpacity={0.7}>
+          <View style={styles.editIconWrapper}>
+            <Ionicons name="create-outline" size={18} color={Colors.primary.dark} />
+          </View>
+          <Text style={styles.editText}>Edit profile</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.logoutRow}
           onPress={() => setConfirmVisible(true)}
@@ -57,6 +87,25 @@ export default function ProfileScreen() {
           <Text style={styles.logoutText}>Log out</Text>
         </TouchableOpacity>
       </View>
+
+      <AppModal
+        visible={editVisible}
+        icon="create-outline"
+        title="Edit username"
+        confirmLabel="Save"
+        cancelLabel="Cancel"
+        onConfirm={handleSaveUsername}
+        onCancel={() => setEditVisible(false)}
+      >
+        <FormField
+          label="USERNAME"
+          icon="person-outline"
+          value={usernameDraft}
+          onChangeText={setUsernameDraft}
+          placeholder="Your username"
+          error={usernameError || undefined}
+        />
+      </AppModal>
 
       <AppModal
         visible={confirmVisible}
@@ -116,6 +165,32 @@ const styles = StyleSheet.create({
     gap: 8,
     backgroundColor: Colors.gray[50],
     flex: 1,
+  },
+  editRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: Colors.white,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  editIconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.gray[100],
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editText: {
+    ...Typography.button,
+    color: Colors.gray[900],
   },
   logoutRow: {
     flexDirection: 'row',

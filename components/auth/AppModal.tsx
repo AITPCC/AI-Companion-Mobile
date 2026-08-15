@@ -10,6 +10,7 @@ interface AppModalProps {
   iconColor?: string;
   title: string;
   message?: string;
+  children?: React.ReactNode;
   confirmLabel: string;
   cancelLabel?: string;
   destructive?: boolean;
@@ -25,6 +26,7 @@ export const AppModal: React.FC<AppModalProps> = ({
   iconColor,
   title,
   message,
+  children,
   confirmLabel,
   cancelLabel,
   destructive = false,
@@ -47,6 +49,7 @@ export const AppModal: React.FC<AppModalProps> = ({
           )}
           <Text style={styles.title}>{title}</Text>
           {!!message && <Text style={styles.message}>{message}</Text>}
+          {children}
           <View style={styles.actions}>
             {!!cancelLabel && (
               <TouchableOpacity style={styles.cancelButton} onPress={onCancel} activeOpacity={0.7}>

@@ -14,6 +14,7 @@ interface AuthContextValue {
   logIn: (email: string, password: string) => AuthResult;
   logOut: () => void;
   resetPassword: (email: string, newPassword: string) => AuthResult;
+  updateProfile: (username: string) => AuthResult;
 }
 
 // In-memory validation only, no seeded demo account and nothing persisted —
@@ -55,6 +56,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logOut = useCallback(() => setCurrentUser(null), []);
 
+  const updateProfile = useCallback(
+    (username: string): AuthResult => {
+      if (!currentUser) {
+        return { success: false, error: 'You must be logged in.' };
+      }
+      setUsers((prev) =>
+        prev.map((u) => (u.email === currentUser.email ? { ...u, username } : u))
+      );
+      setCurrentUser((prev) => (prev ? { ...prev, username } : prev));
+      return { success: true };
+    },
+    [currentUser]
+  );
+
   const resetPassword = useCallback(
     (email: string, newPassword: string): AuthResult => {
       const idx = users.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
@@ -68,7 +83,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   return (
-    <AuthContext.Provider value={{ currentUser, signUp, logIn, logOut, resetPassword }}>
+    <AuthContext.Provider
+      value={{ currentUser, signUp, logIn, logOut, resetPassword, updateProfile }}
+    >
       {children}
     </AuthContext.Provider>
   );
