@@ -27,9 +27,11 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [emailTakenVisible, setEmailTakenVisible] = useState(false);
+  const [signupErrorVisible, setSignupErrorVisible] = useState(false);
+  const [signupError, setSignupError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
     const nextErrors: { [key: string]: string } = {};
     if (!email.trim()) nextErrors.email = 'Email is required.';
     if (!username.trim()) nextErrors.username = 'Username is required.';
@@ -39,9 +41,12 @@ export default function SignupScreen() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    const result = signUp(email.trim(), username.trim(), password);
+    setSubmitting(true);
+    const result = await signUp(email.trim(), username.trim(), password);
+    setSubmitting(false);
     if (!result.success) {
-      setEmailTakenVisible(true);
+      setSignupError(result.error);
+      setSignupErrorVisible(true);
       return;
     }
     router.replace('/');
@@ -102,7 +107,12 @@ export default function SignupScreen() {
               error={errors.confirmPassword}
             />
 
-            <PrimaryButton title="Create account" onPress={handleCreateAccount} />
+            <PrimaryButton
+              title="Create account"
+              onPress={handleCreateAccount}
+              loading={submitting}
+              disabled={submitting}
+            />
           </View>
 
           <FooterLink
@@ -114,18 +124,14 @@ export default function SignupScreen() {
       </KeyboardAvoidingView>
 
       <AppModal
-        visible={emailTakenVisible}
+        visible={signupErrorVisible}
         icon="alert-circle-outline"
         iconColor={Colors.error}
-        title="Email already in use"
-        message="An account with this email already exists. Try logging in instead."
-        confirmLabel="Log in"
-        cancelLabel="OK"
-        onConfirm={() => {
-          setEmailTakenVisible(false);
-          router.push('/');
-        }}
-        onCancel={() => setEmailTakenVisible(false)}
+        title="Sign up failed"
+        message={signupError}
+        confirmLabel="OK"
+        onConfirm={() => setSignupErrorVisible(false)}
+        onCancel={() => setSignupErrorVisible(false)}
       />
     </View>
   );

@@ -1,86 +1,82 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-
-interface MockUser {
-  email: string;
-  username: string;
-  password: string;
-}
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import { AuthUser, fetchCurrentUser, loginUser, registerUser, updateUsername } from '@/lib/authApi';
 
 type AuthResult = { success: true } | { success: false; error: string };
 
+const TOKEN_KEY = 'auth_token';
+
 interface AuthContextValue {
-  currentUser: MockUser | null;
-  signUp: (email: string, username: string, password: string) => AuthResult;
-  logIn: (email: string, password: string) => AuthResult;
-  logOut: () => void;
-  resetPassword: (email: string, newPassword: string) => AuthResult;
-  updateProfile: (username: string) => AuthResult;
+  currentUser: AuthUser | null;
+  signUp: (email: string, username: string, password: string) => Promise<AuthResult>;
+  logIn: (email: string, password: string) => Promise<AuthResult>;
+  logOut: () => Promise<void>;
+  resetPassword: (email: string, newPassword: string) => Promise<AuthResult>;
+  updateProfile: (username: string) => Promise<AuthResult>;
 }
 
-// In-memory validation only, no seeded demo account and nothing persisted —
-// swap these bodies for real API calls once the backend auth endpoints are
-// wired in, callers already consume the AuthResult shape.
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<MockUser[]>([]);
-  const [currentUser, setCurrentUser] = useState<MockUser | null>(null);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  // Restore the session on app start if a token was saved from a previous run.
+  useEffect(() => {
+    (async () => {
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (!token) return;
+      try {
+        setCurrentUser(await fetchCurrentUser(token));
+      } catch {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+      }
+    })();
+  }, []);
 
   const signUp = useCallback(
-    (email: string, username: string, password: string): AuthResult => {
-      const exists = users.some((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (exists) {
-        return { success: false, error: 'This email is already in use.' };
-      }
-      const newUser: MockUser = { email, username, password };
-      setUsers((prev) => [...prev, newUser]);
-      setCurrentUser(newUser);
+    async (email: string, username: string, password: string): Promise<AuthResult> => {
+      const result = await registerUser(email, password, username);
+      if (!result.success) return result;
       return { success: true };
     },
-    [users]
+    []
   );
 
-  const logIn = useCallback(
-    (email: string, password: string): AuthResult => {
-      const user = users.find(
-        (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-      );
-      if (!user) {
-        return { success: false, error: 'Invalid email or password.' };
-      }
+  const logIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    const loginResult = await loginUser(email, password);
+    if (!loginResult.success) return loginResult;
+
+    try {
+      const user = await fetchCurrentUser(loginResult.token);
+      await SecureStore.setItemAsync(TOKEN_KEY, loginResult.token);
       setCurrentUser(user);
       return { success: true };
-    },
-    [users]
-  );
+    } catch (e) {
+      return { success: false, error: e instanceof Error ? e.message : 'Login failed.' };
+    }
+  }, []);
 
-  const logOut = useCallback(() => setCurrentUser(null), []);
+  const logOut = useCallback(async () => {
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    setCurrentUser(null);
+  }, []);
 
-  const updateProfile = useCallback(
-    (username: string): AuthResult => {
-      if (!currentUser) {
-        return { success: false, error: 'You must be logged in.' };
-      }
-      setUsers((prev) =>
-        prev.map((u) => (u.email === currentUser.email ? { ...u, username } : u))
-      );
-      setCurrentUser((prev) => (prev ? { ...prev, username } : prev));
-      return { success: true };
-    },
-    [currentUser]
-  );
+  const updateProfile = useCallback(async (username: string): Promise<AuthResult> => {
+    const token = await SecureStore.getItemAsync(TOKEN_KEY);
+    if (!token) {
+      return { success: false, error: 'You must be logged in.' };
+    }
+    const result = await updateUsername(token, username);
+    if (!result.success) return result;
+    setCurrentUser(result.user);
+    return { success: true };
+  }, []);
 
-  const resetPassword = useCallback(
-    (email: string, newPassword: string): AuthResult => {
-      const idx = users.findIndex((u) => u.email.toLowerCase() === email.toLowerCase());
-      if (idx === -1) {
-        return { success: false, error: 'No account found with that email.' };
-      }
-      setUsers((prev) => prev.map((u, i) => (i === idx ? { ...u, password: newPassword } : u)));
-      return { success: true };
-    },
-    [users]
-  );
+  // No backend endpoint for this yet (only /auth/register and /auth/login exist) —
+  // kept as a no-op so the screen still works until the backend adds one.
+  const resetPassword = useCallback(async (): Promise<AuthResult> => {
+    return { success: true };
+  }, []);
 
   return (
     <AuthContext.Provider

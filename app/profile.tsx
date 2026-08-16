@@ -21,8 +21,8 @@ export default function ProfileScreen() {
   const displayName = currentUser?.username ?? 'Guest';
   const initials = displayName.slice(0, 2).toUpperCase();
 
-  const handleLogout = () => {
-    logOut();
+  const handleLogout = async () => {
+    await logOut();
     setConfirmVisible(false);
     router.replace('/');
   };
@@ -33,12 +33,12 @@ export default function ProfileScreen() {
     setEditVisible(true);
   };
 
-  const handleSaveUsername = () => {
+  const handleSaveUsername = async () => {
     if (!usernameDraft.trim()) {
       setUsernameError('Username is required.');
       return;
     }
-    const result = updateProfile(usernameDraft.trim());
+    const result = await updateProfile(usernameDraft.trim());
     if (!result.success) {
       setUsernameError(result.error);
       return;

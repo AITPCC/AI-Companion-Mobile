@@ -6,7 +6,7 @@ import { Colors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
 import { useAuth } from '@/contexts/AuthContext';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -19,23 +19,32 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
-  const { logIn } = useAuth();
+  const { logIn, currentUser } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  useEffect(() => {
+    if (currentUser) {
+      router.replace('/chat');
+    }
+  }, [currentUser]);
+
+  const handleLogin = async () => {
     if (!email.trim() || !password) {
       setError('Please enter your email and password.');
       return;
     }
-    const result = logIn(email.trim(), password);
+    setError('');
+    setLoading(true);
+    const result = await logIn(email.trim(), password);
+    setLoading(false);
     if (!result.success) {
       setError(result.error);
       return;
     }
-    setError('');
     router.replace('/chat');
   };
 
@@ -85,7 +94,7 @@ export default function LoginScreen() {
               </Text>
             </View>
 
-            <PrimaryButton title="Log in" onPress={handleLogin} />
+            <PrimaryButton title="Log in" onPress={handleLogin} loading={loading} disabled={loading} />
             <SecondaryButton title="Skip for now" onPress={() => router.push('/chat')} />
           </View>
 

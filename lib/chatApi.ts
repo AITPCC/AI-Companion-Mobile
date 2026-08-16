@@ -6,7 +6,7 @@ const normalizeBaseUrl = (url: string) => {
   return url;
 };
 
-const getBaseUrl = () => normalizeBaseUrl(DEFAULT_BASE_URL);
+export const getBaseUrl = () => normalizeBaseUrl(DEFAULT_BASE_URL);
 
 interface ChatHistoryItem {
   content: string;

@@ -29,7 +29,7 @@ export default function ResetPasswordScreen() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successVisible, setSuccessVisible] = useState(false);
 
-  const handleReset = () => {
+  const handleReset = async () => {
     const nextErrors: { [key: string]: string } = {};
     if (!email.trim()) nextErrors.email = 'Email is required.';
     if (!newPassword) nextErrors.newPassword = 'New password is required.';
@@ -38,7 +38,7 @@ export default function ResetPasswordScreen() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    const result = resetPassword(email.trim(), newPassword);
+    const result = await resetPassword(email.trim(), newPassword);
     if (!result.success) {
       setErrors({ email: result.error });
       return;
