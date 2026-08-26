@@ -1,0 +1,94 @@
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+import { AuthUser, fetchCurrentUser, loginUser, registerUser, updateUsername } from '@/lib/authApi';
+
+type AuthResult = { success: true } | { success: false; error: string };
+
+const TOKEN_KEY = 'auth_token';
+
+interface AuthContextValue {
+  currentUser: AuthUser | null;
+  signUp: (email: string, username: string, password: string) => Promise<AuthResult>;
+  logIn: (email: string, password: string) => Promise<AuthResult>;
+  logOut: () => Promise<void>;
+  resetPassword: (email: string, newPassword: string) => Promise<AuthResult>;
+  updateProfile: (username: string) => Promise<AuthResult>;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+
+  // Restore the session on app start if a token was saved from a previous run.
+  useEffect(() => {
+    (async () => {
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+      if (!token) return;
+      try {
+        setCurrentUser(await fetchCurrentUser(token));
+      } catch {
+        await SecureStore.deleteItemAsync(TOKEN_KEY);
+      }
+    })();
+  }, []);
+
+  const signUp = useCallback(
+    async (email: string, username: string, password: string): Promise<AuthResult> => {
+      const result = await registerUser(email, password, username);
+      if (!result.success) return result;
+      return { success: true };
+    },
+    []
+  );
+
+  const logIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    const loginResult = await loginUser(email, password);
+    if (!loginResult.success) return loginResult;
+
+    try {
+      const user = await fetchCurrentUser(loginResult.token);
+      await SecureStore.setItemAsync(TOKEN_KEY, loginResult.token);
+      setCurrentUser(user);
+      return { success: true };
+    } catch (e) {
+      return { success: false, error: e instanceof Error ? e.message : 'Login failed.' };
+    }
+  }, []);
+
+  const logOut = useCallback(async () => {
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    setCurrentUser(null);
+  }, []);
+
+  const updateProfile = useCallback(async (username: string): Promise<AuthResult> => {
+    const token = await SecureStore.getItemAsync(TOKEN_KEY);
+    if (!token) {
+      return { success: false, error: 'You must be logged in.' };
+    }
+    const result = await updateUsername(token, username);
+    if (!result.success) return result;
+    setCurrentUser(result.user);
+    return { success: true };
+  }, []);
+
+  // No backend endpoint for this yet (only /auth/register and /auth/login exist) —
+  // kept as a no-op so the screen still works until the backend adds one.
+  const resetPassword = useCallback(async (): Promise<AuthResult> => {
+    return { success: true };
+  }, []);
+
+  return (
+    <AuthContext.Provider
+      value={{ currentUser, signUp, logIn, logOut, resetPassword, updateProfile }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+  return ctx;
+}

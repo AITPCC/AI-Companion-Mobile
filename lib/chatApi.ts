@@ -9,7 +9,7 @@ const normalizeBaseUrl = (url: string) => {
   return url;
 };
 
-const getBaseUrl = () => normalizeBaseUrl(DEFAULT_BASE_URL);
+export const getBaseUrl = () => normalizeBaseUrl(DEFAULT_BASE_URL);
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

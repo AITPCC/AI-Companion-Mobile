@@ -8,11 +8,13 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 interface TopNavBarProps {
   username?: string;
   onMenuPress?: () => void;
+  onProfilePress?: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
   username = 'Username',
   onMenuPress,
+  onProfilePress,
 }) => {
   return (
     <View style={styles.container}>
@@ -30,11 +32,18 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           {/* <Text style={styles.username}>{username}</Text> */}
         </View>
       </View>
-      {onMenuPress && (
-        <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
-          <Ionicons name="menu" size={20} color={Colors.gray[900]} />
-        </TouchableOpacity>
-      )}
+      <View style={styles.rightSection}>
+        {onProfilePress && (
+          <TouchableOpacity onPress={onProfilePress} style={styles.iconButton}>
+            <Ionicons name="person-circle-outline" size={22} color={Colors.gray[900]} />
+          </TouchableOpacity>
+        )}
+        {onMenuPress && (
+          <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
+            <Ionicons name="menu" size={20} color={Colors.gray[900]} />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -78,7 +87,12 @@ const styles = StyleSheet.create({
     ...Typography.bodySmall,
     color: Colors.gray[500],
   },
-  menuButton: {
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  iconButton: {
     width: 36,
     height: 36,
     borderRadius: 10,
