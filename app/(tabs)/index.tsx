@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sendChatCompletion } from '@/lib/chatApi';
+import { formatChatError, sendChatCompletion } from '@/lib/chatApi';
 
 // Mode configuration data
 const modeConfigs: Record<ModeType, {
@@ -91,11 +91,12 @@ export default function ChatScreen() {
         };
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        const errorText =
-          response.error ?? 'Unexpected error from AI service. Please try again.';
         setMessages((prev) => [
           ...prev,
-          { type: 'system', content: errorText },
+          {
+            type: 'system',
+            content: formatChatError(response.error),
+          },
         ]);
       }
     } catch {
