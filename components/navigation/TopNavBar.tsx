@@ -1,13 +1,13 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/colors';
 import { Typography } from '@/constants/typography';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface TopNavBarProps {
   username?: string;
-  onMenuPress: () => void;
+  onMenuPress?: () => void;
   onProfilePress?: () => void;
 }
 
@@ -29,7 +29,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         </LinearGradient>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>TPCC</Text>
-          <Text style={styles.username}>{username}</Text>
+          {/* <Text style={styles.username}>{username}</Text> */}
         </View>
       </View>
       <View style={styles.rightSection}>
@@ -38,9 +38,11 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             <Ionicons name="person-circle-outline" size={22} color={Colors.gray[900]} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
-          <Ionicons name="menu" size={20} color={Colors.gray[900]} />
-        </TouchableOpacity>
+        {onMenuPress && (
+          <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
+            <Ionicons name="menu" size={20} color={Colors.gray[900]} />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

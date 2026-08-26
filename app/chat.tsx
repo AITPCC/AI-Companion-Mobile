@@ -5,6 +5,7 @@ import { SideMenu } from '@/components/navigation/SideMenu';
 import { TopNavBar } from '@/components/navigation/TopNavBar';
 import { Colors, ModeType } from '@/constants/colors';
 import { useAuth } from '@/contexts/AuthContext';
+import { formatChatError, sendChatCompletion } from '@/lib/chatApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
@@ -17,8 +18,6 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sendChatCompletion } from '@/lib/chatApi';
-
 // Mode configuration data
 const modeConfigs: Record<ModeType, {
   title: string;
@@ -94,11 +93,12 @@ export default function ChatScreen() {
         };
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        const errorText =
-          response.error ?? 'Unexpected error from AI service. Please try again.';
         setMessages((prev) => [
           ...prev,
-          { type: 'system', content: errorText },
+          {
+            type: 'system',
+            content: formatChatError(response.error),
+          },
         ]);
       }
     } catch {
@@ -134,11 +134,10 @@ export default function ChatScreen() {
       >
         {/* Top navigation */}
         <View style={{ paddingTop: insets.top }}>
-          <TopNavBar
-            username={currentUser?.username ?? 'Guest'}
-            onMenuPress={() => setMenuVisible(true)}
-            onProfilePress={() => router.push(currentUser ? '/profile' : '/')}
-          />
+        <TopNavBar
+          username={currentUser?.username ?? 'Guest'}
+          onProfilePress={() => router.push(currentUser ? '/profile' : '/')}
+        />
         </View>
 
         {/* Chat content */}
