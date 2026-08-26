@@ -88,12 +88,6 @@ export default function LoginScreen() {
               error={error || undefined}
             />
 
-            <View style={styles.forgotRow}>
-              <Text style={styles.forgotLink} onPress={() => router.push('/reset-password')}>
-                Forgot password?
-              </Text>
-            </View>
-
             <PrimaryButton title="Log in" onPress={handleLogin} loading={loading} disabled={loading} />
             <SecondaryButton title="Skip for now" onPress={() => router.push('/chat')} />
           </View>
@@ -136,13 +130,5 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
-  },
-  forgotRow: {
-    alignItems: 'flex-end',
-  },
-  forgotLink: {
-    ...Typography.bodySmall,
-    fontWeight: '600',
-    color: Colors.primary.dark,
   },
 });
