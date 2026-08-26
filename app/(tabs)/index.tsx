@@ -90,11 +90,12 @@ export default function ChatScreen() {
         };
         setMessages((prev) => [...prev, aiMessage]);
       } else {
-        const errorText =
-          response.error ?? 'Unexpected error from AI service. Please try again.';
         setMessages((prev) => [
           ...prev,
-          { type: 'system', content: errorText },
+          {
+            type: 'system',
+            content: formatChatError(response.error),
+          },
         ]);
       }
     } catch {
