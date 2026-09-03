@@ -78,13 +78,14 @@ export function formatChatError(error?: string | null): string {
   return error;
 }
 
-async function postJson<T>(path: string, body: unknown): Promise<T> {
+async function postJson<T>(path: string, body: unknown, token: string | null): Promise<T> {
   const url = `${getBaseUrl()}${path}`;
 
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body),
   });
@@ -93,11 +94,10 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return data;
 }
 
-async function sendChatCompletionOnce({
-  message,
-  history = [],
-  mode = 'history_figure',
-}: SendChatParams): Promise<ChatApiResponse> {
+async function sendChatCompletionOnce(
+  { message, history = [], mode = 'history_figure' }: SendChatParams,
+  token: string | null
+): Promise<ChatApiResponse> {
   const payload = {
     message,
     history,
@@ -106,17 +106,18 @@ async function sendChatCompletionOnce({
     },
   };
 
-  return postJson<ChatApiResponse>('/chat/completions', payload);
+  return postJson<ChatApiResponse>('/chat/completions', payload, token);
 }
 
 export async function sendChatCompletion(
-  params: SendChatParams
+  params: SendChatParams,
+  token: string | null
 ): Promise<ChatApiResponse> {
   let lastResponse: ChatApiResponse | null = null;
 
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
-      const response = await sendChatCompletionOnce(params);
+      const response = await sendChatCompletionOnce(params, token);
       lastResponse = response;
 
       if (!isRetryableChatResponse(response)) {

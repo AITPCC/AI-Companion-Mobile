@@ -47,7 +47,7 @@ const modeToBackendMode: Record<ModeType, string> = {
 };
 
 export default function ChatScreen() {
-  const { currentUser } = useAuth();
+  const { currentUser, getActiveToken } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
   const [currentMode, setCurrentMode] = useState<ModeType>('famous');
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -79,11 +79,15 @@ export default function ChatScreen() {
     setIsSending(true);
     try {
       const backendMode = modeToBackendMode[currentMode] ?? 'history_figure';
-      const response = await sendChatCompletion({
-        message,
-        history: historyForBackend,
-        mode: backendMode,
-      });
+      const token = await getActiveToken();
+      const response = await sendChatCompletion(
+        {
+          message,
+          history: historyForBackend,
+          mode: backendMode,
+        },
+        token
+      );
 
       if (response.status === 200 && response.content) {
         const aiMessage: ChatMessage = {
