@@ -78,7 +78,7 @@ export function formatChatError(error?: string | null): string {
   return error;
 }
 
-async function postJson<T>(path: string, body: unknown, token: string | null): Promise<T> {
+async function postJson(path: string, body: unknown, token: string | null): Promise<ChatApiResponse> {
   const url = `${getBaseUrl()}${path}`;
 
   const response = await fetch(url, {
@@ -90,8 +90,17 @@ async function postJson<T>(path: string, body: unknown, token: string | null): P
     body: JSON.stringify(body),
   });
 
-  const data = (await response.json()) as T;
-  return data;
+  const data = (await response.json()) as Partial<ChatApiResponse> & { detail?: unknown };
+
+  // Auth failures (401) skip the backend's normal {status, content, error}
+  // envelope and come back as FastAPI's default {"detail": "..."} shape.
+  if (!response.ok) {
+    const detail =
+      typeof data.detail === 'string' ? data.detail : `Request failed (${response.status})`;
+    return { status: response.status, content: null, error: detail };
+  }
+
+  return { status: data.status ?? response.status, content: data.content ?? null, error: data.error ?? null };
 }
 
 async function sendChatCompletionOnce(
@@ -106,7 +115,7 @@ async function sendChatCompletionOnce(
     },
   };
 
-  return postJson<ChatApiResponse>('/chat/completions', payload, token);
+  return postJson('/chat/completions', payload, token);
 }
 
 export async function sendChatCompletion(

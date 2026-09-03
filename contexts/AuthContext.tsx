@@ -14,7 +14,7 @@ interface AuthContextValue {
   logOut: () => Promise<void>;
   resetPassword: (email: string, newPassword: string) => Promise<AuthResult>;
   updateProfile: (username: string) => Promise<AuthResult>;
-  ensureGuestToken: () => Promise<string | null>;
+  ensureGuestToken: (forceRefresh?: boolean) => Promise<string | null>;
   getActiveToken: () => Promise<string | null>;
 }
 
@@ -84,9 +84,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true };
   }, []);
 
-  const ensureGuestToken = useCallback(async (): Promise<string | null> => {
-    const token = await SecureStore.getItemAsync(GUEST_TOKEN);
-    if (token) return token;
+  const ensureGuestToken = useCallback(async (forceRefresh = false): Promise<string | null> => {
+    if (!forceRefresh) {
+      const token = await SecureStore.getItemAsync(GUEST_TOKEN);
+      if (token) return token;
+    }
 
     const guesttokenresult = await getGuestToken();
     if (!guesttokenresult.success) return null;

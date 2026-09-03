@@ -47,7 +47,7 @@ const modeToBackendMode: Record<ModeType, string> = {
 };
 
 export default function ChatScreen() {
-  const { currentUser, getActiveToken } = useAuth();
+  const { currentUser, getActiveToken, ensureGuestToken } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
   const [currentMode, setCurrentMode] = useState<ModeType>('famous');
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -80,7 +80,7 @@ export default function ChatScreen() {
     try {
       const backendMode = modeToBackendMode[currentMode] ?? 'history_figure';
       const token = await getActiveToken();
-      const response = await sendChatCompletion(
+      let response = await sendChatCompletion(
         {
           message,
           history: historyForBackend,
@@ -88,6 +88,15 @@ export default function ChatScreen() {
         },
         token
       );
+
+      // Guest token expired — get a fresh one and retry once.
+      if (response.status === 401 && !currentUser) {
+        const freshToken = await ensureGuestToken(true);
+        response = await sendChatCompletion(
+          { message, history: historyForBackend, mode: backendMode },
+          freshToken
+        );
+      }
 
       if (response.status === 200 && response.content) {
         const aiMessage: ChatMessage = {
