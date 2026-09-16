@@ -80,6 +80,16 @@ export async function loginUser(
   return { success: true, token: (body as BackendLoginResponse).access_token };
 }
 
+export async function getGuestToken(): Promise<AuthResult<{ token: string }>> {
+  const { ok, body } = await apiFetch<BackendLoginResponse>('/auth/guest-session', {
+    method: 'POST',
+  });
+  if (!ok) {
+    return { success: false, error: extractErrorMessage(body, 'Could not start a guest session.') };
+  }
+  return { success: true, token: (body as BackendLoginResponse).access_token };
+}
+
 export async function updateUsername(
   token: string,
   username: string

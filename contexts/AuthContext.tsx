@@ -1,10 +1,11 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { AuthUser, fetchCurrentUser, getGuestToken, loginUser, registerUser, updateUsername } from '@/lib/authApi';
 import * as SecureStore from 'expo-secure-store';
-import { AuthUser, fetchCurrentUser, loginUser, registerUser, updateUsername } from '@/lib/authApi';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 type AuthResult = { success: true } | { success: false; error: string };
 
 const TOKEN_KEY = 'auth_token';
+const GUEST_TOKEN = 'guest_token';
 
 interface AuthContextValue {
   currentUser: AuthUser | null;
@@ -13,6 +14,8 @@ interface AuthContextValue {
   logOut: () => Promise<void>;
   resetPassword: (email: string, newPassword: string) => Promise<AuthResult>;
   updateProfile: (username: string) => Promise<AuthResult>;
+  ensureGuestToken: (forceRefresh?: boolean) => Promise<string | null>;
+  getActiveToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -24,7 +27,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     (async () => {
       const token = await SecureStore.getItemAsync(TOKEN_KEY);
-      if (!token) return;
+      if (!token) {
+        await ensureGuestToken();
+        return;
+      }
       try {
         setCurrentUser(await fetchCurrentUser(token));
       } catch {
@@ -78,9 +84,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success: true };
   }, []);
 
+  const ensureGuestToken = useCallback(async (forceRefresh = false): Promise<string | null> => {
+    if (!forceRefresh) {
+      const token = await SecureStore.getItemAsync(GUEST_TOKEN);
+      if (token) return token;
+    }
+
+    const guesttokenresult = await getGuestToken();
+    if (!guesttokenresult.success) return null;
+
+    await SecureStore.setItemAsync(GUEST_TOKEN, guesttokenresult.token);
+    return guesttokenresult.token;
+  }, [])
+
+  // Logged-in user's JWT if present, otherwise whatever guest token is stored locally.
+  const getActiveToken = useCallback(async (): Promise<string | null> => {
+    const token = await SecureStore.getItemAsync(TOKEN_KEY);
+    if (token) return token;
+    return ensureGuestToken();
+  }, [ensureGuestToken]);
+
   return (
     <AuthContext.Provider
-      value={{ currentUser, signUp, logIn, logOut, resetPassword, updateProfile }}
+      value={{ currentUser, signUp, logIn, logOut, resetPassword, updateProfile, getActiveToken, ensureGuestToken }}
     >
       {children}
     </AuthContext.Provider>
