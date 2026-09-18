@@ -1,4 +1,4 @@
-import { AuthUser, fetchCurrentUser, getGuestToken, loginUser, registerUser, updateUsername } from '@/lib/authApi';
+import { AuthUser, deleteAccount as deleteAccountApi, fetchCurrentUser, getGuestToken, loginUser, registerUser, updateUsername } from '@/lib/authApi';
 import * as SecureStore from 'expo-secure-store';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
@@ -12,6 +12,7 @@ interface AuthContextValue {
   signUp: (email: string, username: string, password: string) => Promise<AuthResult>;
   logIn: (email: string, password: string) => Promise<AuthResult>;
   logOut: () => Promise<void>;
+  deleteAccount: () => Promise<AuthResult>;
   resetPassword: (email: string, newPassword: string) => Promise<AuthResult>;
   updateProfile: (username: string) => Promise<AuthResult>;
   ensureGuestToken: (forceRefresh?: boolean) => Promise<string | null>;
@@ -67,6 +68,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
   }, []);
 
+  const deleteAccount = useCallback(async (): Promise<AuthResult> => {
+    const token = await SecureStore.getItemAsync(TOKEN_KEY);
+    if (!token) {
+      return { success: false, error: 'You must be logged in.' };
+    }
+    const result = await deleteAccountApi(token);
+    if (!result.success) return result;
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    setCurrentUser(null);
+    return { success: true };
+  }, []);
+
   const updateProfile = useCallback(async (username: string): Promise<AuthResult> => {
     const token = await SecureStore.getItemAsync(TOKEN_KEY);
     if (!token) {
@@ -106,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, signUp, logIn, logOut, resetPassword, updateProfile, getActiveToken, ensureGuestToken }}
+      value={{ currentUser, signUp, logIn, logOut, deleteAccount, resetPassword, updateProfile, getActiveToken, ensureGuestToken }}
     >
       {children}
     </AuthContext.Provider>

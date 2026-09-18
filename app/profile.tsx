@@ -12,8 +12,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { currentUser, logOut, updateProfile } = useAuth();
+  const { currentUser, logOut, deleteAccount, updateProfile } = useAuth();
   const [confirmVisible, setConfirmVisible] = useState(false);
+  const [deleteVisible, setDeleteVisible] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const [editVisible, setEditVisible] = useState(false);
   const [usernameDraft, setUsernameDraft] = useState('');
   const [usernameError, setUsernameError] = useState('');
@@ -24,6 +26,21 @@ export default function ProfileScreen() {
   const handleLogout = async () => {
     await logOut();
     setConfirmVisible(false);
+    router.replace('/');
+  };
+
+  const openDeleteModal = () => {
+    setDeleteError('');
+    setDeleteVisible(true);
+  };
+
+  const handleDeleteAccount = async () => {
+    const result = await deleteAccount();
+    if (!result.success) {
+      setDeleteError(result.error);
+      return;
+    }
+    setDeleteVisible(false);
     router.replace('/');
   };
 
@@ -86,6 +103,15 @@ export default function ProfileScreen() {
           </View>
           <Text style={styles.logoutText}>Log out</Text>
         </TouchableOpacity>
+
+        {currentUser && (
+          <TouchableOpacity style={styles.logoutRow} onPress={openDeleteModal} activeOpacity={0.7}>
+            <View style={styles.logoutIconWrapper}>
+              <Ionicons name="trash-outline" size={18} color={Colors.error} />
+            </View>
+            <Text style={styles.logoutText}>Delete account</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <AppModal
@@ -117,6 +143,21 @@ export default function ProfileScreen() {
         onConfirm={handleLogout}
         onCancel={() => setConfirmVisible(false)}
       />
+
+      <AppModal
+        visible={deleteVisible}
+        icon="trash-outline"
+        iconColor={Colors.error}
+        title="Delete your account?"
+        message="This permanently deletes your account and data. This can't be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setDeleteVisible(false)}
+      >
+        {!!deleteError && <Text style={styles.deleteError}>{deleteError}</Text>}
+      </AppModal>
     </View>
   );
 }
@@ -216,6 +257,10 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     ...Typography.button,
+    color: Colors.error,
+  },
+  deleteError: {
+    ...Typography.body,
     color: Colors.error,
   },
 });
