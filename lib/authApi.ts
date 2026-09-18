@@ -44,7 +44,7 @@ async function apiFetch<T>(
       ...options,
       headers: { 'Content-Type': 'application/json', ...(options.headers ?? {}) },
     });
-    const body = (await response.json()) as T;
+    const body = response.status === 204 ? ({} as T) : ((await response.json()) as T);
     return { ok: response.ok, body };
   } catch {
     return { ok: false, body: { error: 'Could not reach the server. Is it running?' } };
@@ -103,6 +103,17 @@ export async function updateUsername(
     return { success: false, error: extractErrorMessage(body, 'Could not update profile.') };
   }
   return { success: true, user: toAuthUser(body as BackendUserProfile) };
+}
+
+export async function deleteAccount(token: string): Promise<AuthResult<object>> {
+  const { ok, body } = await apiFetch<object>('/users/me', {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!ok) {
+    return { success: false, error: extractErrorMessage(body, 'Could not delete account.') };
+  }
+  return { success: true };
 }
 
 export async function fetchCurrentUser(token: string): Promise<AuthUser> {
