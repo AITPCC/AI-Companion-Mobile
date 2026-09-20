@@ -2,7 +2,7 @@
   "expo": {
     "name": "TPCC-app",
     "slug": "TPCC-app",
-    "version": "1.0.2",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tpccapp",
@@ -10,14 +10,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.qinshihuang.tpccapp",
-      "buildNumber": "3",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.anonymous.TPCCapp",
-      "versionCode": 4,
+      "versionCode": 6,
       "adaptiveIcon": {
         "backgroundColor": "#2B7FFF",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
